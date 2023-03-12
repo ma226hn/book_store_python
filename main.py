@@ -1,9 +1,26 @@
 from getpass import getpass
-from methods import login, mainMenu ,memberMenu,register,tuples_to_dict
+from view import login, mainMenu ,memberMenu,register,tuples_to_dict,searchMenu
 from mysql.connector import connect,Error
 import re
 
-
+def search(column):
+  print("Enter the "+ column + " 's name or a part of the name :")
+  searchWord =input()
+  queryString=" select * from books where "+column + " like '%"+searchWord+"%'"
+  print (queryString)
+  cursor.execute( queryString)
+  rows = cursor.fetchall()
+  print(row[0])
+  column_names=["ISBN","Author","Title","price","subject"]
+  my_list= tuples_to_dict(rows ,column_names)
+  for object in my_list:
+    
+      for key, value in object.items():
+        print(key + ':', value)
+    
+      print('---')
+     
+ 
 def showSubject (userid):
   try:
     select_query= """ select distinct subject from books"""
@@ -22,16 +39,21 @@ def showSubject (userid):
     cursor.execute("select count(isbn)  from books where subject =%s", (sub[choice-1],))
     row = cursor.fetchone()
     print (row[0],"books available in this subject ")
-    showbooks(int(row[0]),sub[choice-1],userid)
+    queryString = "SELECT * FROM books where subject = '" +sub[choice-1]+"'"
+   # showbooks(int(row[0]),sub[choice-1],userid)
+    showbooks(int(row[0]),queryString,userid)
   except Exception as e:
                 print("An error occurred: ", e)   
 
 
-def showbooks ( index,choice,userid):
+def showbooks ( index,query,userid):
    i=0
    more= True
    while i <= index and more==True:
-    cursor.execute("SELECT * FROM books where subject = %s ORDER BY isbn LIMIT 2 OFFSET %s", (choice,i))
+    queryString = f"{query} ORDER BY isbn LIMIT 2 OFFSET {i}"
+    print(queryString)
+    #cursor.execute("SELECT * FROM books where subject = %s ORDER BY isbn LIMIT 2 OFFSET %s", (choice,i))
+    cursor.execute(queryString)
     rows = cursor.fetchall()
     column_names=["ISBN","Author","Tittel","price","subject"]
     my_list= tuples_to_dict(rows ,column_names)
@@ -83,7 +105,6 @@ try :
         print(connection)
         cursor = connection.cursor()
         run=True
-
         while (run):
          option = mainMenu()
          print(option)
@@ -95,13 +116,20 @@ try :
              if not row: 
                print("password or email is not correct")
              else :
-                
                 option= memberMenu()
                 userid= row[0]
                 if option == '1':
                   showSubject(userid)
                 elif  option == '2':
-                   print ('ä')
+                   choice= searchMenu()
+                   if choice == '1' :
+                      print ("1. Author Search")
+                      search("author")
+                   elif choice =='2':
+                      print ("2. Title Search") 
+                      search("title")
+                   else :
+                      print ("3. Go Back to Main Menu")   
                     #search()
                 elif option == '3':
                    print('ö')
@@ -125,10 +153,9 @@ try :
                 print ("TRY  AGAIN _______________________________________") 
                 print("")
                 print("")
-         elif option == 'q': 
-              run = False    
          else:
-            print ("wrong option try agin")
+              run = False    
+        
         
 
         # mycursor = connection.cursor()

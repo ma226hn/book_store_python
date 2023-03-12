@@ -53,8 +53,13 @@ def memberMenu():
     print ("            3. check out          ")
     print ("            4. logout          ")
     option = input("type in your option:")
-    print(" ")
-    return option
+    if option == '1' or option == '2' or option=='3' or option == '4' :
+     return option
+    else:
+     print(" invalid input ________________try again")
+     print ("") 
+     memberMenu()  
+    
 def mainMenu():
     print ("********************************************************************")
     print("****                                                            *****")
@@ -62,9 +67,15 @@ def mainMenu():
     print ("********************************************************************")
     print ("            1. Member login")
     print("             2. New member registration      ")
-    print ("             q. Quit          ")
+    print ("            q. Quit          ")
     option = input("type in your option:")
-    return option
+    if option == '1' or option == '2' or option=='q' :
+     return option
+    else:
+     print(" invalid input ________________try again")
+     print ("") 
+     mainMenu()  
+   
 def tuples_to_dict(list_tuples, column_names):
     list_dict=[]
     for tuple in list_tuples:
@@ -76,3 +87,21 @@ def tuples_to_dict(list_tuples, column_names):
         dict[column_names[4]]= tuple[4]
         list_dict.append(dict)
     return list_dict
+def searchMenu():
+    print ("====================================")
+    print ("  serach  books")
+    print ("1. Author Search")
+    print ("2. Title Search")
+    print ("3. Go Back to Main Menu")
+    alt =input (" type your choice : ")
+    print ("")
+    if alt == '1' or alt == '2' or alt=='3' :
+     return alt
+    else:
+     print(" invalid input ________________try again")
+     print ("") 
+     searchMenu()  
+   
+
+
+
