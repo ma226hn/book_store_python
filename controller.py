@@ -1,6 +1,6 @@
 
 from getpass import getpass
-from view import loginView, mainMenu ,memberMenu,register,searchMenu,printBooks,inputNumber
+from view import loginView, mainMenu ,memberMenu,registerView,searchMenu,printBooks,inputNumber
 import re
 
 def showMemberMenu():
@@ -11,10 +11,10 @@ def showMemberMenu():
       choice= searchMenu()
       if choice == '1' :
         print ("1. Author Search")
-        search("author")
+        search("author",3)
       elif choice =='2':
         print ("2. Title Search") 
-        search("title")
+        search("title",3)
       else :
         print ("3. Go Back to Main Menu")   
         #search()
@@ -40,25 +40,25 @@ def showSubject ():
     if (choice>i-1):
       raise Exception("Please enter the valid subject number, it should be less than or equal ", i-1) 
     queryString = f"where subject ='{sub[choice-1]}'"
-    getBooksNumber(queryString)
+    getBooksNumber(queryString,2)
    
   except Exception as e:
                 print("An error occurred: ", e) 
 
 
-def getBooksNumber(query):
+def getBooksNumber(query,num):
     cursor.execute(f"select count(isbn)  from books {query}")
     row = cursor.fetchone()
     print ("=============================")
     print (row[0],"books available ")
     print ("=============================")
-    showBooks(int(row[0]),query)
+    showBooks(int(row[0]),query,num)
 
-def showBooks(index,query):
+def showBooks(index,query,num):
    i=0
    more= True
    while i <= index and more==True:
-     queryString = f"select * from books {query} ORDER BY isbn LIMIT 2 OFFSET {i}"
+     queryString = f"select * from books {query} ORDER BY isbn LIMIT {num} OFFSET {i}"
      cursor.execute(queryString)
      rows = cursor.fetchall()
      alt =printBooks(rows)
@@ -123,11 +123,11 @@ def login():
       userId= row[0]
       showMemberMenu()
       
-def search(column):
+def search(column,num):
   print("Enter the "+ column + " 's name or a part of the name :")
   searchWord =input()
   queryString="where "+ column + " like '%"+searchWord+"%'"
-  getBooksNumber(queryString)
+  getBooksNumber(queryString,num)
   
      
 def runProgram(connect):    

@@ -9,7 +9,7 @@ def hashPassword(password):
   hashed_password = hashed_password_bytes.hex()
   return hashed_password
 
-def register ():
+def registerView ():
     print ("Welcome to the online book store ")
     print("    New Member Registration ")
     fname= input("Enter first name : ")

@@ -21,6 +21,3 @@ try :
         #  print(row)
 except Error as e:
     print (e)        
-
-
-  
