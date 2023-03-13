@@ -1,4 +1,5 @@
 import hashlib
+
 def hashPassword(password):
  
   password_bytes = password.encode('utf-8')
@@ -34,7 +35,7 @@ def register ():
         "password" : hashedPassWord
 
     }
-def login ():
+def loginView ():
     email= input ("enter email: ")
     password = input (" enter password: ")
     hashedPassWord= hashPassword(password)
@@ -101,7 +102,27 @@ def searchMenu():
      print(" invalid input ________________try again")
      print ("") 
      searchMenu()  
+def printBooks(rows):
+     column_names=["ISBN","Author","Title","price","subject"]
+     my_list= tuples_to_dict(rows ,column_names)
+     for object in my_list:
+       for key, value in object.items():
+         print(key + ':', value)
+       print('---')
+     print("//////////////==============////////////////")
+     print ("Enter ISBN to add to cart ")
+     print ("n + enter to browse more ")
+    
+     alt =input("Enter to go back to menu : ") 
+     print("///////////////////==============////////////////") 
+     return alt
+def inputNumber():
+   num = input()
+   if not num.isdigit():
+      print (" invalid input you should enter number")
+      inputNumber()
    
-
+   return int(num)    
+   
 
 
