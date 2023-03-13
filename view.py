@@ -60,6 +60,7 @@ def memberMenu():
      print(" invalid input ________________try again")
      print ("") 
      memberMenu()  
+
     
 def mainMenu():
     print ("********************************************************************")
@@ -76,7 +77,21 @@ def mainMenu():
      print(" invalid input ________________try again")
      print ("") 
      mainMenu()  
-   
+def printCart(row,columns):
+      print (row)
+ 
+      print ("---------------------------------------------------------------------------------------------")
+      print (f"{columns[0]}  :  {row[0]}")
+      print(f"{columns[1]} :    {row[1]}  ")
+      print(f" {columns[2]}   : {row[2]}  ")
+      print (f"{columns[3]}    : {row[3]} ")
+      print (f"{columns[4]} :  {row[1] * row [3]}" ) 
+      print("---------------------------------------------------------------------------------------------")
+      alt = input ("Proceed to check out (Y/N)?: ")
+      return alt
+     
+        
+
 def tuples_to_dict(list_tuples, column_names):
     list_dict=[]
     for tuple in list_tuples:

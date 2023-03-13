@@ -1,7 +1,46 @@
 
 from getpass import getpass
-from view import loginView, mainMenu ,memberMenu,registerView,searchMenu,printBooks,inputNumber
+from view import loginView, mainMenu ,memberMenu,registerView,searchMenu,printBooks,inputNumber,printCart,tuples_to_dict
 import re
+from datetime import datetime, timedelta
+def checkOut():
+   queryString= f"SELECT books.title, books.price,books.isbn, cart.qty  FROM books,cart  where books.isbn = cart.isbn and cart.userid = '{userId}'"
+   cursor.execute(queryString)
+   row = cursor.fetchone()
+   if row :
+     column_names=["Title","price","isbn","qty","total"]
+     choice= printCart(row,column_names)
+     if (choice == 'y' or choice == 'Y'):
+       makeOrder(row)
+     showMemberMenu()
+   else :
+     print ("no books in cart")
+def makeOrder(row) :
+   
+   today = datetime.today()
+     # get the current date and time
+   next_week = today + timedelta(days=7) 
+    # add 7 days to get the date for next week
+   today=today.strftime('%Y-%m-%d')
+
+   next_week_str = next_week.strftime('%Y-%m-%d')
+   queryString =F"insert into orders (userid,received,shipped,shipAddress,shipCity,shipState,shipZip) values ('{userId}','{today}','{next_week_str}','{address}','{city}','{state}','{zip}')"
+   cursor.execute(queryString)
+   connection.commit()
+   queryString=f"select ono from orders where userid='{userId}'"
+   cursor.execute(queryString)
+   tuple= cursor.fetchone()
+   orderNum= tuple[0]
+   queryString=f"insert into odetails(ono,isbn,qty,price) values('{orderNum}','{row[2]}','{row[3]}','{row[1]}');"
+   cursor.execute(queryString)
+   connection.commit()
+   queryString= f"DELETE FROM cart WHERE userid='{userId}'"
+   cursor.execute(queryString)
+   connection.commit()
+   printBill()
+
+def printBill():
+   quer
 
 def showMemberMenu():
    option= memberMenu()
@@ -17,13 +56,13 @@ def showMemberMenu():
         search("title",3)
       else :
         print ("3. Go Back to Main Menu")   
-        #search()
+        showMemberMenu()
    elif option == '3':
-        print('ö')
-        #checkOut()
+        checkOut()
    else: 
-     #logout
-     run = False    
+     print(" you are now logged out")
+     
+
 def showSubject ():
   try:
     select_query= """ select distinct subject from books"""
@@ -74,10 +113,9 @@ def showBooks(index,query,num):
          i=0
      else:
       buyBook(alt)
+      more=False
    showMemberMenu()   
 def buyBook(alt):
-   while not alt == 'q':
-       
        if not alt.isdigit():
          print("Invalid ISBN, it should contain only numbers")
          alt=input("try again or print q to quit  : ") 
@@ -90,26 +128,25 @@ def buyBook(alt):
          else : 
             print("Enter quantity") 
             num=inputNumber()
-            queryString =f"SELECT qty from cart where isbn ='{alt}'"
-            cursor.execute(queryString)
-            row=cursor.fetchone()
             if not num == '0':
+              queryString =f"SELECT qty from cart where isbn ='{alt}' and userid ='{userId}'"
+              cursor.execute(queryString)
+              row=cursor.fetchone()
               if not row  :
                cursor.execute("insert into cart (userid,isbn,qty) values (%s,%s,%s)",(userId,alt,num))
                connection.commit()
                print (" the book added to the cart")
-               alt=input("enter a ISBN number to buy a new book or q to quit")
               else :
-                cursor.execute("update cart set qty = %s where isbn =%s",(alt,num))
+                cursor.execute("update cart set qty = %s where isbn =%s and userid = %s",(alt,num,userId))
                 connection.commit()
                 print ("the number of the book updated")
-                alt=input("enter a ISBN number to buy a new book or q to quit")
+                
             
                   
 
 def login():
     user_login_info=loginView()
-    select_query= """ SELECT userid from members where email = %s and password = %s"""
+    select_query= """ SELECT  userid, address,city,state,zip from members where email = %s and password = %s"""
     cursor.execute(select_query, (user_login_info["email"],user_login_info["password"],))
     row = cursor.fetchone()
     if not row: 
@@ -119,8 +156,13 @@ def login():
       if alt == 't':
        login()         
     else :
-      global userId
+      global userId ,address,city,state,zip
       userId= row[0]
+      address= row[1]
+      city = row[2]
+      state = row[3]
+      zip = row [4]
+
       showMemberMenu()
       
 def search(column,num):
@@ -128,7 +170,24 @@ def search(column,num):
   searchWord =input()
   queryString="where "+ column + " like '%"+searchWord+"%'"
   getBooksNumber(queryString,num)
-  
+
+def register():
+     try:
+                user_info=registerView()
+                pattern = r'^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$'
+                if not re.match(pattern, user_info["email"]):
+                 raise Exception("invalid email")
+                insert_query= """ insert into members (fname,lname,address,city,state,zip,phone,email,password) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+                cursor.execute(insert_query, (user_info["fname"],user_info["lname"],user_info["address"],user_info["city"],user_info["state"],user_info["zip"],user_info["phone"],user_info["email"],user_info["password"],))
+                connection.commit()
+                print("You have registered successfully!")
+                input("Press Enter to go back to Menu")
+     except Exception as e:
+                print("")
+                print("An error occurred: ", e) 
+                print ("TRY  AGAIN _______________________________________") 
+                print("")
+                print("")  
      
 def runProgram(connect):    
         global connection 
@@ -142,22 +201,7 @@ def runProgram(connect):
          if option == '1':  
            login()         
          elif option == '2':
-              try:
-                user_info=register()
-                pattern = r'^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$'
-                if not re.match(pattern, user_info["email"]):
-                 raise Exception("invalid email")
-                insert_query= """ insert into members (fname,lname,address,city,state,zip,phone,email,password) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-                cursor.execute(insert_query, (user_info["fname"],user_info["lname"],user_info["address"],user_info["city"],user_info["state"],user_info["zip"],user_info["phone"],user_info["email"],user_info["password"],))
-                connection.commit()
-                print("You have registered successfully!")
-                input("Press Enter to go back to Menu")
-              except Exception as e:
-                print("")
-                print("An error occurred: ", e) 
-                print ("TRY  AGAIN _______________________________________") 
-                print("")
-                print("")
+            register() 
          else:
               run = False    
         
