@@ -3,45 +3,84 @@ from getpass import getpass
 from view import loginView, mainMenu ,memberMenu,registerView,searchMenu,printBooks,inputNumber,printCart,tuples_to_dict
 import re
 from datetime import datetime, timedelta
+
 def checkOut():
-   queryString= f"SELECT books.title, books.price,books.isbn, cart.qty  FROM books,cart  where books.isbn = cart.isbn and cart.userid = '{userId}'"
-   cursor.execute(queryString)
-   row = cursor.fetchone()
-   if row :
-     column_names=["Title","price","isbn","qty","total"]
-     choice= printCart(row,column_names)
-     if (choice == 'y' or choice == 'Y'):
-       makeOrder(row)
-     showMemberMenu()
-   else :
-     print ("no books in cart")
-def makeOrder(row) :
+   try:
    
-   today = datetime.today()
-     # get the current date and time
-   next_week = today + timedelta(days=7) 
-    # add 7 days to get the date for next week
-   today=today.strftime('%Y-%m-%d')
+        queryString= f"SELECT books.title, books.price,books.isbn, cart.qty  FROM books,cart  where books.isbn = cart.isbn and cart.userid = '{userId}'"
+        cursor.execute(queryString)
+        rows = cursor.fetchall()
+        if rows :
+          column_names=["Title","price","isbn","qty","total"]
+          choice= printCart(rows,column_names)
+          if (choice == 'y' or choice == 'Y'):
+            makeOrder(rows)
+          showMemberMenu()
+        else :
+          print ("no books in cart")
+   except Exception as e:
+                print("")
+                print("An error occurred: ", e) 
+                print ("TRY  AGAIN _______________________________________") 
+                print("")
+                print("")  
 
-   next_week_str = next_week.strftime('%Y-%m-%d')
-   queryString =F"insert into orders (userid,received,shipped,shipAddress,shipCity,shipState,shipZip) values ('{userId}','{today}','{next_week_str}','{address}','{city}','{state}','{zip}')"
-   cursor.execute(queryString)
-   connection.commit()
-   queryString=f"select ono from orders where userid='{userId}'"
-   cursor.execute(queryString)
-   tuple= cursor.fetchone()
-   orderNum= tuple[0]
-   queryString=f"insert into odetails(ono,isbn,qty,price) values('{orderNum}','{row[2]}','{row[3]}','{row[1]}');"
-   cursor.execute(queryString)
-   connection.commit()
-   queryString= f"DELETE FROM cart WHERE userid='{userId}'"
-   cursor.execute(queryString)
-   connection.commit()
-   printBill()
+def makeOrder(rows) :
+  
+      today = datetime.today()
+        # get the current date and time
+      next_week = today + timedelta(days=7) 
+        # add 7 days to get the date for next week
+      today=today.strftime('%Y-%m-%d')
+      print('1')
+      
+      #next_week_str = next_week.strftime('%Y-%m-%d')
+      queryString =F"insert into orders (userid,received,shipped,shipAddress,shipCity,shipState,shipZip) values ('{userId}','{today}',null,'{address}','{city}','{state}','{zip}')"
+      print(queryString)
+      cursor.execute(queryString)
+     
+      print('2')
+      connection.commit()
+    
+      queryString=f"select ono from orders where ono =LAST_INSERT_ID() and userid= {userId}"
+      cursor.execute(queryString)
+      print('3')
+      tuple= cursor.fetchone()
+      orderNum= tuple[0]
+      for row in rows :
+        queryString=f"insert into odetails(ono,isbn,qty,price) values('{orderNum}','{row[2]}','{row[3]}','{row[1]}');"
+        cursor.execute(queryString)
+        connection.commit()
+      queryString= f"DELETE FROM cart WHERE userid='{userId}'"
+      cursor.execute(queryString)
+      connection.commit()
+      print('4')
+      printBill(orderNum)
+ 
 
-def printBill():
-   quer
 
+def printBill(orderNum):
+  print (f"            Invoice for order no .{orderNum}                 ")
+  print ( "shipping Adress======")
+  print (f" Name : {firstName}  {lastName}")
+  print (f" {address} {state} {city} {zip}")
+  queryString =f"select books.title, odetails.price , odetails.isbn , odetails.qty from books , odetails where books.isbn = odetails.isbn and odetails.ono={orderNum}"
+  cursor.execute(queryString)
+  tuples= cursor.fetchall()
+  column_names=["Title","price","isbn","qty"]
+  totalPrice =0
+  for tuple in tuples:
+   print (f"{column_names[0]}  :   {tuple[0]}")
+   print (f"{column_names[1]}  :   {tuple[1]}")
+   print (f"{column_names[2]}  :   {tuple[2]}")
+   print (f"{column_names[3]}  :   {tuple[3]}")
+   print (f" total  :   {tuple[1]* tuple[3]}")
+   totalPrice = totalPrice + tuple[1]* tuple[3]
+  print ("=====================================================================================================================")
+  print (f"  total  bill : {totalPrice}")
+  print ("=====================================================================================================================")
+  input(" press enter to back to the main menu                    ")
+  print("           **********************                                                                                     ")
 def showMemberMenu():
    option= memberMenu()
    if option == '1':
@@ -146,7 +185,7 @@ def buyBook(alt):
 
 def login():
     user_login_info=loginView()
-    select_query= """ SELECT  userid, address,city,state,zip from members where email = %s and password = %s"""
+    select_query= """ SELECT * from members where email = %s and password = %s"""
     cursor.execute(select_query, (user_login_info["email"],user_login_info["password"],))
     row = cursor.fetchone()
     if not row: 
@@ -156,12 +195,18 @@ def login():
       if alt == 't':
        login()         
     else :
-      global userId ,address,city,state,zip
-      userId= row[0]
-      address= row[1]
-      city = row[2]
-      state = row[3]
-      zip = row [4]
+      global userId ,address,city,state,zip,firstName,lastName
+      firstName= row[0]
+     
+      lastName = row [1]
+    
+      userId= row[8]
+     
+      address= row[2]
+      city = row[3]
+      state = row[4]
+      zip = row [5]
+      
 
       showMemberMenu()
       

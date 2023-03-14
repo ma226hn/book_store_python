@@ -77,9 +77,9 @@ def mainMenu():
      print(" invalid input ________________try again")
      print ("") 
      mainMenu()  
-def printCart(row,columns):
-      print (row)
- 
+def printCart(rows,columns):
+      
+  for row in rows :
       print ("---------------------------------------------------------------------------------------------")
       print (f"{columns[0]}  :  {row[0]}")
       print(f"{columns[1]} :    {row[1]}  ")
@@ -87,8 +87,8 @@ def printCart(row,columns):
       print (f"{columns[3]}    : {row[3]} ")
       print (f"{columns[4]} :  {row[1] * row [3]}" ) 
       print("---------------------------------------------------------------------------------------------")
-      alt = input ("Proceed to check out (Y/N)?: ")
-      return alt
+  alt = input ("Proceed to check out (Y/N)?: ")
+  return alt
      
         
 
