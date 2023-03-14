@@ -1,7 +1,43 @@
 import hashlib
+#========================================================
 
+# print empty lines 
+def clean():
+   print ("")
+   print ("")
+   print(" ")
+# main view in the program 
+def mainMenu():
+    print ("********************************************************************")
+    print("****                                                            *****")
+    print("***                     WELCOME TO ONLINE BOOKS STORE           *****")
+    print ("********************************************************************")
+    print ("            1. Member login")
+    print("             2. New member registration      ")
+    print ("            q. Quit          ")
+    option = input("type in your option:")
+    if option == '1' or option == '2' or option=='q' :
+     clean()
+     return option
+    else:
+     print(" invalid input ________________try again")
+     print ("") 
+     mainMenu()  
+
+
+# insert user email and password  and return the email and the hashed password
+def loginView ():
+    email= input ("enter email: ")
+    password = input (" enter password: ")
+    # using hashing library to hash the pass and check it with the hashed value in the DB
+    hashedPassWord= hashPassword(password)
+    return {
+        "email": email ,
+        "password" : hashedPassWord
+    }
+
+#hash the password
 def hashPassword(password):
- 
   password_bytes = password.encode('utf-8')
   sha256 = hashlib.sha256()
   sha256.update(password_bytes)
@@ -35,14 +71,8 @@ def registerView ():
         "password" : hashedPassWord
 
     }
-def loginView ():
-    email= input ("enter email: ")
-    password = input (" enter password: ")
-    hashedPassWord= hashPassword(password)
-    return {
-        "email": email ,
-        "password" : hashedPassWord
-    }
+
+#show member view
 def memberMenu():
     print ("********************************************************************")
     print("****                                                            *****")
@@ -55,6 +85,7 @@ def memberMenu():
     print ("            4. logout          ")
     option = input("type in your option:")
     if option == '1' or option == '2' or option=='3' or option == '4' :
+     clean()
      return option
     else:
      print(" invalid input ________________try again")
@@ -62,32 +93,22 @@ def memberMenu():
      memberMenu()  
 
     
-def mainMenu():
-    print ("********************************************************************")
-    print("****                                                            *****")
-    print("***                     WELCOME TO ONLINE BOOKS STORE           *****")
-    print ("********************************************************************")
-    print ("            1. Member login")
-    print("             2. New member registration      ")
-    print ("            q. Quit          ")
-    option = input("type in your option:")
-    if option == '1' or option == '2' or option=='q' :
-     return option
-    else:
-     print(" invalid input ________________try again")
-     print ("") 
-     mainMenu()  
+#print the content of the cart 
 def printCart(rows,columns):
       
   for row in rows :
+      print ("---------------------------------------------------------------------------------------------")
+      
+      print("                     cart content                       ")
       print ("---------------------------------------------------------------------------------------------")
       print (f"{columns[0]}  :  {row[0]}")
       print(f"{columns[1]} :    {row[1]}  ")
       print(f" {columns[2]}   : {row[2]}  ")
       print (f"{columns[3]}    : {row[3]} ")
       print (f"{columns[4]} :  {row[1] * row [3]}" ) 
-      print("---------------------------------------------------------------------------------------------")
+      print("######################################")
   alt = input ("Proceed to check out (Y/N)?: ")
+  clean()
   return alt
      
         
@@ -103,6 +124,9 @@ def tuples_to_dict(list_tuples, column_names):
         dict[column_names[4]]= tuple[4]
         list_dict.append(dict)
     return list_dict
+
+
+# search view
 def searchMenu():
     print ("====================================")
     print ("  serach  books")
@@ -112,11 +136,15 @@ def searchMenu():
     alt =input (" type your choice : ")
     print ("")
     if alt == '1' or alt == '2' or alt=='3' :
+     clean()
      return alt
     else:
      print(" invalid input ________________try again")
      print ("") 
      searchMenu()  
+
+
+#print the books
 def printBooks(rows):
      column_names=["ISBN","Author","Title","price","subject"]
      my_list= tuples_to_dict(rows ,column_names)
@@ -130,7 +158,11 @@ def printBooks(rows):
     
      alt =input("Enter to go back to menu : ") 
      print("///////////////////==============////////////////") 
+     clean()
      return alt
+
+
+# input to check if the input is number or not
 def inputNumber():
    num = input()
    if not num.isdigit():
